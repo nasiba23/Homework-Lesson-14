@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Homework_Lesson_14
 {
@@ -6,34 +8,49 @@ namespace Homework_Lesson_14
     {
         static void Main(string[] args)
         {
-            var dictionary = new DictionaryImitation<int, string>();
+            var myList = new MyList<int>();
+            myList.Add(1);
+            var t = myList.Count;
+            Console.WriteLine(myList[0]);
+            var dictionary = new MyDictionary<int, string>();
             dictionary.Add(1, "name");
-            var val = dictionary.Get(1);
-            Console.WriteLine(val);
-            var removed = dictionary.Remove(1);
-            Console.WriteLine(removed);
+            Console.WriteLine(dictionary[1]);
         }
     }
-    public class DictionaryImitation<TKey, TValue>
-    {
-        private TKey[] _keys = Array.Empty<TKey>();
-        private TValue[] _values = Array.Empty<TValue>();
 
-        private int _i;
-        
-        public void Add(TKey key, TValue value)
+    public class MyList<T>
+    {
+        private T[] _values = Array.Empty<T>();
+        private int _i = 0; 
+        public T this[int index]
         {
-            Array.Resize(ref _keys, _i + 1);
+            get => _values[index];
+            set => _values[index] = value;
+        }
+        public void Add(T value)
+        {
             Array.Resize(ref _values, _i + 1);
-            _keys[_i] = key;
             _values[_i] = value;
             _i++;
+        }
+        public int Count => _i;
+
+    }
+    public class MyDictionary<TKey, TValue>
+    {
+        private MyList<TKey> _keys = new();
+        private MyList<TValue> _values = new();
+
+        public void Add(TKey key, TValue value)
+        {
+            _keys.Add(key);
+            _values.Add(value);
         }
 
         public TValue Get(TKey key)
         {
             int keyIndex;
-            for (int i = 0; i < _keys.Length; i++)
+            for (int i = 0; i < _keys.Count; i++)
             {
                 if (_keys[i].Equals(key))
                 {
@@ -43,39 +60,31 @@ namespace Homework_Lesson_14
             }
             return (TValue)(object)null;
         }
-        public bool Remove(TKey key)
+
+        public TValue this[TKey key]
         {
-            int keyIndex = -1;
-            var newKeys = Array.Empty<TKey>();
-            var newValues = Array.Empty<TValue>();
-            for (int i = 0; i < _keys.Length; i++)
+            get
             {
-                if (_keys[i].Equals(key))
+                for (int i = 0; i < _keys.Count; i++)
                 {
-                    keyIndex = i;
-                    Array.Resize(ref newKeys, _keys.Length - 1);
-                    Array.Resize(ref newValues, _values.Length - 1);
+                    if (_keys[i].Equals(key))
+                    {
+                        return _values[i];
+                    }
+                }
+                return (TValue)(object)null;
+            }
+            set
+            {
+                for (int i = 0; i < _keys.Count; i++)
+                {
+                    if (_keys[i].Equals(key))
+                    {
+                        _values[i] = value;
+                        return;
+                    }
                 }
             }
-
-            if (keyIndex == -1)
-            {
-                return false;
-            }
-
-            for (int i = 0, j = 0; i < _keys.Length; i++)
-            {
-                if (i == keyIndex)
-                {
-                    continue;
-                }
-                newKeys[j] = _keys[i];
-                newValues[j] = _values[i];
-                j++;
-            }
-            _keys = newKeys;
-            _values = newValues;
-            return true;
         }
     }
 
